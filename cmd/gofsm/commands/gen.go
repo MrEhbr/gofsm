@@ -46,6 +46,11 @@ var GenCommand = &cli.Command{
 			Aliases: []string{"t"},
 			Usage:   "path to file with transitions",
 		},
+		&cli.BoolFlag{
+			Name:    "noGenerate",
+			Aliases: []string{"g"},
+			Usage:   "don't put //go:generate instruction to the generated code",
+		},
 	},
 	Action: func(c *cli.Context) error {
 		if c.IsSet("transitions") {
@@ -79,11 +84,12 @@ var GenCommand = &cli.Command{
 
 func genAction(c *cli.Context) error {
 	options := fsm.Options{
-		InputPackage:    c.String("package"),
-		Struct:          c.String("struct"),
-		StateField:      c.String("field"),
-		TransitionsFile: c.String("transitions"),
-		OutputFile:      c.String("output"),
+		InputPackage:      c.String("package"),
+		Struct:            c.String("struct"),
+		StateField:        c.String("field"),
+		TransitionsFile:   c.String("transitions"),
+		OutputFile:        c.String("output"),
+		DisableGoGenerate: c.Bool("noGenerate"),
 	}
 
 	if options.OutputFile == "" {

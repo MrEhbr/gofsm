@@ -29,6 +29,8 @@ type Options struct {
 	StateField string
 	// TransitionsFile is path to file which hold supported transitions
 	TransitionsFile string
+	// DisableGoGenerate don't put go generate
+	DisableGoGenerate bool
 }
 
 // Generator generates finite state machine

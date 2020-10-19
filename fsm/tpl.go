@@ -4,8 +4,10 @@ var fsmTemplate = `package {{.Package.Name}}
 // DO NOT EDIT!
 // This code is generated with http://github.com/MrEhbr/gofsm tool
 
+{{ if not .Options.DisableGoGenerate}}
 //{{"go:generate"}} gofsm gen -s {{.Options.Struct}} -f {{.Options.StateField}} -o {{ base .Options.OutputFile }} -t
 {{- if .Options.TransitionsFile}} {{ path_join (rel (dir .Options.OutputFile) (dir .Options.TransitionsFile)) (base .Options.TransitionsFile) }} {{- end }}
+{{- end }}
 
 // {{.Struct.Name}}Transition is a state transition and all data are literal values that simplifies FSM usage and make it generic.
 type {{.Struct.Name}}Transition struct {
