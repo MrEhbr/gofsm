@@ -1,6 +1,6 @@
 {
     "_comment": "this project is not a node.js one, package.json is just used to define some metadata",
-    "name": "golang-repo-template",
+    "name": "gofsm",
     "version": "0.0.1",
     "author": "Alexey Burmistrov <mr.ehbr@gmail.com>",
     "contributors": [
@@ -8,13 +8,13 @@
     ],
     "license": "Apache-2.0",
     "scripts": {
-        "start": "golang-repo-template",
+        "start": "gofsm",
         "install": "make install",
         "test": "make test"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/MrEhbr/golang-repo-template.git"
+        "url": "https://github.com/MrEhbr/gofsm.git"
     },
-    "bugs": "https://github.com/MrEhbr/golang-repo-template/issues"
+    "bugs": "https://github.com/MrEhbr/gofsm/issues"
 }

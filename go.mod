@@ -1,5 +1,9 @@
-module github.com/MrEhbr/golang-repo-template
+module github.com/MrEhbr/gofsm
 
 go 1.15
 
-require go.uber.org/goleak v1.1.10
+require (
+	github.com/google/go-cmp v0.5.2
+	github.com/urfave/cli/v2 v2.2.0
+	golang.org/x/tools v0.0.0-20201017001424-6003fad69a88
+)
