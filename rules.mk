@@ -177,7 +177,9 @@ proto.generate: $(BUF)
 		"--plugin_name=go" \
 		"--plugin_out=$(PROTOC_GEN_GO_OUT)" \
 		"--plugin_opt=$(PROTOC_GEN_GO_OPT)"
+ifneq ($(wildcard buf.yml),)
 GENERATE_STEPS += proto.generate
+endif
 
 
 BUILD_STEPS += go.build
@@ -210,7 +212,7 @@ ifneq ($(DOCKER_IMAGE),none)
 docker.build:
 	docker build \
 	  --build-arg VCS_REF=$(VCS_REF) \
-	  --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+	  --build-arg BUILD_DATE=$(BUILD_DATE) \
 	  --build-arg VERSION=$(VERSION) \
 	  -t $(DOCKER_IMAGE) -f $(DOCKERFILE_PATH) $(dir $(DOCKERFILE_PATH))
 
