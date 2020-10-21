@@ -7,8 +7,8 @@ on:
     types: [published, released]
 
 jobs:
-  multi:
-    name: "Multi"
+  docker:
+    name: "Docker"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
