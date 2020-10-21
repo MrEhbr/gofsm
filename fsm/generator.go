@@ -3,6 +3,7 @@ package fsm
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"go/constant"
 	"go/types"
@@ -15,6 +16,7 @@ import (
 
 	"golang.org/x/tools/go/packages"
 	"golang.org/x/tools/imports"
+	"moul.io/graphman/viz"
 )
 
 // Options for NewGenerator constructor
@@ -31,6 +33,8 @@ type Options struct {
 	TransitionsFile string
 	// DisableGoGenerate don't put go generate
 	DisableGoGenerate bool
+	// ActionGraphOutputFile path to action graph file
+	ActionGraphOutputFile string
 }
 
 // Generator generates finite state machine
@@ -193,5 +197,19 @@ func (g *Generator) Generate(w io.Writer) error {
 	}
 
 	_, err = w.Write(processedSource)
+	return err
+}
+
+func (g *Generator) GenerateTransitionGraph(w io.Writer) error {
+	if len(g.struc.Transitions) == 0 {
+		return errors.New("for generating graph transitions is required")
+	}
+
+	graph, err := viz.ToGraphviz(g.struc.Transitions.Graph(), nil)
+	if err != nil {
+		return err
+	}
+
+	_, err = w.Write([]byte(graph))
 	return err
 }

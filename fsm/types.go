@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"moul.io/graphman"
 )
 
 // Struct represent struct data
@@ -112,4 +114,32 @@ func (trs Transitions) Actions() []string {
 	}
 
 	return actions[:j+1]
+}
+
+func (trs Transitions) Graph() *graphman.Graph {
+	graph := graphman.New(graphman.Attrs{
+		"overlap": "scalexy",
+		"splines": "true",
+	})
+
+	for _, tr := range trs {
+		attrs := graphman.Attrs{}
+		attrs.SetTitle(tr.Event)
+
+		for _, from := range tr.From {
+			graph.AddEdge(from, tr.To, attrs)
+		}
+	}
+
+	colors := NewColors()
+	for _, v := range graph.Vertices() {
+		v.Attrs.SetPertState()
+
+		if v.IsSink() || v.IsSource() {
+			v.SetColor(colors.Pick())
+			v.Attrs["style"] = "bold"
+		}
+	}
+
+	return graph
 }

@@ -5,6 +5,8 @@ import "fmt"
 // DO NOT EDIT!
 // This code is generated with http://github.com/MrEhbr/gofsm tool
 
+//go:generate gofsm gen -s Order -f State -o order_fsm.go -t transitions.json -a graph.dot
+
 // OrderTransition is a state transition and all data are literal values that simplifies FSM usage and make it generic.
 type OrderTransition struct {
 	Event         string

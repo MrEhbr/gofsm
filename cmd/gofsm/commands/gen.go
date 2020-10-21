@@ -51,6 +51,11 @@ var GenCommand = &cli.Command{
 			Aliases: []string{"g"},
 			Usage:   "don't put //go:generate instruction to the generated code",
 		},
+		&cli.StringFlag{
+			Name:    "graph-output",
+			Aliases: []string{"a"},
+			Usage:   "path to transition graph file in dot format",
+		},
 	},
 	Action: func(c *cli.Context) error {
 		if c.IsSet("transitions") {
@@ -60,6 +65,18 @@ var GenCommand = &cli.Command{
 			}
 
 			if err := c.Set("transitions", path); err != nil {
+				return cli.NewExitError(err, 1)
+
+			}
+		}
+
+		if c.IsSet("graph-output") {
+			path, err := filepath.Abs(c.String("graph-output"))
+			if err != nil {
+				return err
+			}
+
+			if err := c.Set("graph-output", path); err != nil {
 				return cli.NewExitError(err, 1)
 
 			}
@@ -84,12 +101,13 @@ var GenCommand = &cli.Command{
 
 func genAction(c *cli.Context) error {
 	options := fsm.Options{
-		InputPackage:      c.String("package"),
-		Struct:            c.String("struct"),
-		StateField:        c.String("field"),
-		TransitionsFile:   c.String("transitions"),
-		OutputFile:        c.String("output"),
-		DisableGoGenerate: c.Bool("noGenerate"),
+		InputPackage:          c.String("package"),
+		Struct:                c.String("struct"),
+		StateField:            c.String("field"),
+		TransitionsFile:       c.String("transitions"),
+		OutputFile:            c.String("output"),
+		DisableGoGenerate:     c.Bool("noGenerate"),
+		ActionGraphOutputFile: c.String("graph-output"),
 	}
 
 	if options.OutputFile == "" {
@@ -131,7 +149,22 @@ func genAction(c *cli.Context) error {
 		return err
 	}
 
-	return ioutil.WriteFile(options.OutputFile, buf.Bytes(), 0644)
+	if err := ioutil.WriteFile(options.OutputFile, buf.Bytes(), 0644); err != nil {
+		return err
+	}
+
+	if options.ActionGraphOutputFile != "" {
+		buf := &bytes.Buffer{}
+		if err := g.GenerateTransitionGraph(buf); err != nil {
+			return err
+		}
+
+		if err := ioutil.WriteFile(options.ActionGraphOutputFile, buf.Bytes(), 0644); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // isDirectory reports whether the named file is a directory.

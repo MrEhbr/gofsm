@@ -1,0 +1,13 @@
+digraph G {
+	overlap=scalexy;
+	rankdir=LR;
+	splines=true;
+	"CREATED"->"STARTED"[ label="place_order" ];
+	"CREATED"->"FAILED"[ label="fail_order" ];
+	"STARTED"->"FINISHED"[ label="success_order" ];
+	"CREATED" [ color=deeppink, label="CREATED", shape=box, style=bold ];
+	"FAILED" [ color=mediumspringgreen, label="FAILED", shape=box, style=bold ];
+	"FINISHED" [ color=powderblue, label="FINISHED", shape=box, style=bold ];
+	"STARTED" [ label="STARTED", shape=box, style="bold,rounded" ];
+
+}

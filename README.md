@@ -18,6 +18,7 @@ Usage: gofsm gen -p ./examples/transitions -s Order -f State -o order_fsm.go -t 
    --output, -o       output file name (default: default srcdir/<struct>_fsm.go)
    --transitions, -t  path to file with transitions
    --noGenerate, -g   don't put //go:generate instruction to the generated code (default: false)
+   --graph-output, -a value  path to transition graph file in dot format
 ```
 
 This will generate [finite state machine](./examples/transitions/order_fsm.go) for struct Order with transitions defined in [./examples/transitions/transitions.json](./examples/transitions/transitions.json) file

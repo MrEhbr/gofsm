@@ -5,8 +5,9 @@ var fsmTemplate = `package {{.Package.Name}}
 // This code is generated with http://github.com/MrEhbr/gofsm tool
 
 {{ if not .Options.DisableGoGenerate}}
-//{{"go:generate"}} gofsm gen -s {{.Options.Struct}} -f {{.Options.StateField}} -o {{ base .Options.OutputFile }} -t
-{{- if .Options.TransitionsFile}} {{ path_join (rel (dir .Options.OutputFile) (dir .Options.TransitionsFile)) (base .Options.TransitionsFile) }} {{- end }}
+//{{"go:generate"}} gofsm gen -s {{.Options.Struct}} -f {{.Options.StateField}} -o {{ base .Options.OutputFile }}
+{{- if .Options.TransitionsFile}} -t {{ path_join (rel (dir .Options.OutputFile) (dir .Options.TransitionsFile)) (base .Options.TransitionsFile) }} {{- end }}
+{{- if .Options.ActionGraphOutputFile}} -a {{ path_join (rel (dir .Options.OutputFile) (dir .Options.ActionGraphOutputFile)) (base .Options.ActionGraphOutputFile) }} {{- end }}
 {{- end }}
 
 // {{.Struct.Name}}Transition is a state transition and all data are literal values that simplifies FSM usage and make it generic.
