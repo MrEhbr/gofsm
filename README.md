@@ -21,7 +21,8 @@ Usage: gofsm gen -p ./examples/transitions -s Order -f State -o order_fsm.go -t 
    --graph-output, -a value  path to transition graph file in dot format
 ```
 
-This will generate [finite state machine](./examples/transitions/order_fsm.go) for struct Order with transitions defined in [./examples/transitions/transitions.json](./examples/transitions/transitions.json) file
+This will generate [finite state machine](./examples/transitions/order_fsm.go) for struct Order with transitions defined in [./examples/transitions/transitions.json](./examples/transitions/transitions.json) file.
+Transition graph will be generated from transitions file and output will be in dot format
 
 ## Install
 
