@@ -1,7 +1,10 @@
 name: Docker
 on:
   push:
-    tags: ["v*"]
+    tags:
+      - v*
+    branches:
+      - master
 
 jobs:
   docker:
