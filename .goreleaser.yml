@@ -13,8 +13,6 @@ builds:
       - CGO_ENABLED=0
     main: ./cmd/gofsm/main.go
     binary: gofsm
-    hooks:
-      pre: make generate
 
 archives:
   - wrap_in_directory: true
