@@ -127,7 +127,7 @@ const (
 	OrderActionSendEmail         = "send_email"
 )
 
-// OrderTransitions generated from <FILE>
+// OrderTransitions generated from transitions.json
 var OrderTransitions = []OrderTransition{
 	{
 		Event: OrderEventPlaceOrder,

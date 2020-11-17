@@ -124,7 +124,9 @@ func (m *{{.Struct.Name}}StateMachine) findTransMatching(fromState {{.Struct.Sta
 const (
 	// {{ .Struct.Name }} state machine events
 {{- range $val := .Transitions }}
+{{- if .Event }}
 	{{ $.Struct.Name }}Event{{to_camel .Event true}} = "{{.Event}}"
+{{- end }}
 {{- end }}
 
 	// {{ $.Struct.Name }} state machine actions
@@ -133,12 +135,14 @@ const (
 {{- end }}
 )
 
-// {{ $.Struct.Name }}Transitions generated from <FILE>
+// {{ $.Struct.Name }}Transitions generated from {{ path_join (rel (dir .Options.OutputFile) (dir .Options.TransitionsFile)) (base .Options.TransitionsFile) }}
 var {{ $.Struct.Name }}Transitions = []{{ $.Struct.Name }}Transition{
 {{- range $val := .Transitions }}
 	{{- range $from := .From }}
 {
+{{- if $val.Event }}
 	Event: {{ $.Struct.Name }}Event{{to_camel $val.Event true}},
+{{- end }}
 	From: {{ $.Struct.FindValue $from }},
 	To: {{ $.Struct.FindValue $val.To }},
 	{{- if $val.BeforeActions}}
