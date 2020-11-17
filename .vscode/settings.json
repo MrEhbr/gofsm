@@ -4,4 +4,7 @@
     "-cover",
     "-count=1"
   ],
+  "conventionalCommits.scopes": [
+    "transitions"
+  ],
 }
