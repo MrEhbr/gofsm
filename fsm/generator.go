@@ -16,6 +16,7 @@ import (
 
 	"golang.org/x/tools/go/packages"
 	"golang.org/x/tools/imports"
+	"gopkg.in/yaml.v2"
 	"moul.io/graphman/viz"
 )
 
@@ -88,12 +89,18 @@ func NewGenerator(opt Options) (*Generator, error) {
 	}
 
 	if opt.TransitionsFile != "" {
+		decoder := json.Unmarshal
+		ext := filepath.Ext(opt.TransitionsFile)
+		if ext == ".yaml" || ext == ".yml" {
+			decoder = yaml.Unmarshal
+		}
+
 		data, err := ioutil.ReadFile(opt.TransitionsFile)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read transitions file: %w", err)
 		}
 
-		if err := json.Unmarshal(data, &gen.struc.Transitions); err != nil {
+		if err := decoder(data, &gen.struc.Transitions); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal transitions file: %w", err)
 		}
 	}

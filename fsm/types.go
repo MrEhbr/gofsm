@@ -78,11 +78,29 @@ func (s Struct) FindValue(str string) string {
 
 // Transition represent fsm state transition
 type Transition struct {
-	From          []string `json:"from"`
-	To            string   `json:"to"`
-	Event         string   `json:"event"`
-	BeforeActions []string `json:"before_actions"`
-	Actions       []string `json:"actions"`
+	From          stringArray `json:"from" yaml:"from"`
+	To            string      `json:"to" yaml:"to"`
+	Event         string      `json:"event" yaml:"event"`
+	BeforeActions []string    `json:"before_actions" yaml:"before_actions"`
+	Actions       []string    `json:"actions" yaml:"actions"`
+}
+
+type stringArray []string
+
+func (a *stringArray) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var multi []string
+	err := unmarshal(&multi)
+	if err != nil {
+		var single string
+		err := unmarshal(&single)
+		if err != nil {
+			return err
+		}
+		*a = []string{single}
+	} else {
+		*a = multi
+	}
+	return nil
 }
 
 // Transitions slice of Transition

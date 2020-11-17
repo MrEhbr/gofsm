@@ -189,7 +189,7 @@ type Order struct {
 			wantErr: true,
 		},
 		{
-			name: "no errors",
+			name: "no errors json transitions",
 			args: func(t *testing.T) args {
 				const src = `package fsm
 type StateType int
@@ -206,7 +206,102 @@ type Order struct {
 }`
 
 				const transitions = `[{"from": ["CREATED"],"to": "STARTED","event": "place_order"}]`
-				f, err := ioutil.TempFile(t.TempDir(), "trs")
+				f, err := ioutil.TempFile(t.TempDir(), "*_trs.json")
+				if err != nil {
+					t.Fatal(err)
+				}
+				f.WriteString(transitions)
+
+				fname, err := createPackage("fsm", t.TempDir(), []byte(src))
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				return args{
+					Options{
+						InputPackage:    fname,
+						Struct:          "Order",
+						StateField:      "State",
+						TransitionsFile: f.Name(),
+					}}
+			},
+			wantErr: false,
+			inspect: func(t *testing.T, gen *Generator) {
+				if err := gen.struc.Validate(); err != nil {
+					t.Fatalf("exept valid struct with transitions, got: %s", err)
+				}
+			},
+		},
+		{
+			name: "no errors yaml transitions from is string",
+			args: func(t *testing.T) args {
+				const src = `package fsm
+type StateType int
+
+const (
+	Created StateType = iota
+	Started
+	Finished
+	Failed
+)
+type Order struct {
+	ID int
+	State StateType
+}`
+
+				const transitions = `
+- from: CREATED
+  to: STARTED
+  event: place_order`
+				f, err := ioutil.TempFile(t.TempDir(), "*_trs.yml")
+				if err != nil {
+					t.Fatal(err)
+				}
+				f.WriteString(transitions)
+
+				fname, err := createPackage("fsm", t.TempDir(), []byte(src))
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				return args{
+					Options{
+						InputPackage:    fname,
+						Struct:          "Order",
+						StateField:      "State",
+						TransitionsFile: f.Name(),
+					}}
+			},
+			wantErr: false,
+			inspect: func(t *testing.T, gen *Generator) {
+				if err := gen.struc.Validate(); err != nil {
+					t.Fatalf("exept valid struct with transitions, got: %s", err)
+				}
+			},
+		},
+		{
+			name: "no errors yaml transitions from is array",
+			args: func(t *testing.T) args {
+				const src = `package fsm
+type StateType int
+
+const (
+	Created StateType = iota
+	Started
+	Finished
+	Failed
+)
+type Order struct {
+	ID int
+	State StateType
+}`
+
+				const transitions = `
+- from:
+  - CREATED
+  to: STARTED
+  event: place_order`
+				f, err := ioutil.TempFile(t.TempDir(), "*_trs.yml")
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -240,12 +335,12 @@ type Order struct {
 
 			got1, err := NewGenerator(tArgs.opt)
 
-			if tt.inspect != nil {
-				tt.inspect(t, got1)
-			}
-
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("NewGenerator error = %v, wantErr: %t", err, tt.wantErr)
+			}
+
+			if tt.inspect != nil {
+				tt.inspect(t, got1)
 			}
 
 			if tt.inspectErr != nil {
