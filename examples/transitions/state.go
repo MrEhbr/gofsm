@@ -3,7 +3,8 @@ package transitions
 type StateType int
 
 const (
-	Created StateType = iota
+	StateTypeUnknown StateType = iota
+	Created
 	Started
 	Processing
 	Finished

@@ -71,6 +71,15 @@ func (s Struct) FindValue(str string) string {
 		if strings.EqualFold(ToCamelCase(v.Name, true), ToCamelCase(str, true)) {
 			return v.Name
 		}
+
+		trimmed := strings.TrimPrefix(v.Name, s.StateType)
+		if strings.EqualFold(trimmed, str) {
+			return v.Name
+		}
+
+		if strings.EqualFold(ToCamelCase(trimmed, true), ToCamelCase(str, true)) {
+			return v.Name
+		}
 	}
 
 	return ""

@@ -1,6 +1,12 @@
 [
   {
     "from": [
+      "UNKNOWN"
+    ],
+    "to": "CREATED"
+  },
+  {
+    "from": [
       "CREATED"
     ],
     "to": "STARTED",

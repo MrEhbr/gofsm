@@ -130,6 +130,10 @@ const (
 // OrderTransitions generated from transitions.json
 var OrderTransitions = []OrderTransition{
 	{
+		From: StateTypeUnknown,
+		To:   Created,
+	},
+	{
 		Event: OrderEventPlaceOrder,
 		From:  Created,
 		To:    Started,
