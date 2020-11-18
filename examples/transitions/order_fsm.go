@@ -1,9 +1,13 @@
 package transitions
 
-import "fmt"
-
 // DO NOT EDIT!
 // This code is generated with http://github.com/MrEhbr/gofsm tool
+
+import (
+	"fmt"
+
+	"github.com/hashicorp/go-multierror"
+)
 
 // OrderTransition is a state transition and all data are literal values that simplifies FSM usage and make it generic.
 type OrderTransition struct {
@@ -81,10 +85,15 @@ func (m *OrderStateMachine) ChangeState(event string, obj *Order) error {
 	obj.State = trans.To
 
 	if len(trans.Actions) > 0 && m.actionHandler != nil {
+		var errs error
 		for _, action := range trans.Actions {
 			if err := m.actionHandler(action, trans.From, trans.To, obj); err != nil {
-				return fmt.Errorf("action [%s] return error: %w", action, err)
+				errs = multierror.Append(errs, fmt.Errorf("action [%s] return error: %w", action, err))
 			}
+		}
+
+		if errs != nil {
+			return errs
 		}
 	}
 

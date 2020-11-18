@@ -10,6 +10,9 @@ var fsmTemplate = `package {{.Package.Name}}
 {{- if .Options.ActionGraphOutputFile}} -a {{ path_join (rel (dir .Options.OutputFile) (dir .Options.ActionGraphOutputFile)) (base .Options.ActionGraphOutputFile) }} {{- end }}
 {{- end }}
 
+import (
+
+)
 // {{.Struct.Name}}Transition is a state transition and all data are literal values that simplifies FSM usage and make it generic.
 type {{.Struct.Name}}Transition struct {
 	Event string
@@ -86,10 +89,15 @@ func (m *{{.Struct.Name}}StateMachine) ChangeState(event string, obj *{{.Struct.
 	obj.{{.Struct.StateField}} = trans.To
 
 	if len(trans.Actions) > 0 && m.actionHandler  != nil {
+		var errs error
 		for _, action := range trans.Actions {
 			if err := m.actionHandler(action, trans.From, trans.To, obj); err != nil {
-				return fmt.Errorf("action [%s] return error: %w", action, err)
+				errs = multierror.Append(errs, fmt.Errorf("action [%s] return error: %w", action, err))
 			}
+		}
+
+		if errs != nil {
+			return errs
 		}
 	}
 
