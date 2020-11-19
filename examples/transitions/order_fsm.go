@@ -34,7 +34,7 @@ type (
 var (
 	ErrOrderFsmAction       = errors.New("OrderStateMachine action error")
 	ErrOrderFsmBeforeAction = errors.New("OrderStateMachine before action error")
-	// ErrOrderSkip indicates that further processing not need
+	// ErrOrderFsmSkip indicates that further processing not need
 	// used in before_actions
 	ErrOrderFsmSkip = errors.New("skip")
 )
@@ -79,7 +79,7 @@ func (m *OrderStateMachine) ChangeState(event string, obj *Order) error {
 	if len(trans.BeforeActions) > 0 && m.actionHandler != nil {
 		for _, action := range trans.BeforeActions {
 			if err := m.actionHandler(action, trans.From, trans.To, obj); err != nil {
-				if errors.Is(err, ErrOrderSkip) {
+				if errors.Is(err, ErrOrderFsmSkip) {
 					return nil
 				}
 
