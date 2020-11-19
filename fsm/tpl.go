@@ -34,6 +34,9 @@ type (
 var (
 	Err{{.Struct.Name}}FsmAction = errors.New("{{.Struct.Name}}StateMachine action error")
 	Err{{.Struct.Name}}FsmBeforeAction = errors.New("{{.Struct.Name}}StateMachine before action error")
+	// Err{{.Struct.Name}}Skip indicates that further processing not need
+	// used in before_actions
+	Err{{.Struct.Name}}FsmSkip = errors.New("skip")
 )
 
 type Option func(*{{.Struct.Name}}StateMachine)
@@ -76,6 +79,10 @@ func (m *{{.Struct.Name}}StateMachine) ChangeState(event string, obj *{{.Struct.
 	if len(trans.BeforeActions) > 0 && m.actionHandler != nil {
 		for _, action := range trans.BeforeActions {
 			if err := m.actionHandler(action, trans.From, trans.To, obj); err != nil {
+				if errors.Is(err, Err{{.Struct.Name}}Skip) {
+					return nil
+				}
+
 				return fmt.Errorf("%w. action [%s] return error: %s", Err{{.Struct.Name}}FsmBeforeAction, action, err)
 			}
 		}
