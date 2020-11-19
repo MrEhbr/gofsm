@@ -10,31 +10,32 @@ var fsmTemplate = `package {{.Package.Name}}
 {{- if .Options.ActionGraphOutputFile}} -a {{ path_join (rel (dir .Options.OutputFile) (dir .Options.ActionGraphOutputFile)) (base .Options.ActionGraphOutputFile) }} {{- end }}
 {{- end }}
 
-import (
-
-)
-// {{.Struct.Name}}Transition is a state transition and all data are literal values that simplifies FSM usage and make it generic.
-type {{.Struct.Name}}Transition struct {
-	Event string
-	From {{.Struct.StateType}}
-	To {{.Struct.StateType}}
-	BeforeActions []string
-	Actions []string
-}
-
 type (
+	// {{.Struct.Name}}Transition is a state transition and all data are literal values that simplifies FSM usage and make it generic.
+	{{.Struct.Name}}Transition struct {
+		Event string
+		From {{.Struct.StateType}}
+		To {{.Struct.StateType}}
+		BeforeActions []string
+		Actions []string
+	}
 	// {{.Struct.Name}}Handle handles transitions action
 	{{.Struct.Name}}HandleAction func(action string, fromState, toState {{.Struct.StateType}}, obj *{{.Struct.Name}}) error
 	// Save state to external storage
 	{{.Struct.Name}}PersistState func(obj *{{.Struct.Name}}, state {{.Struct.StateType}}) error
+	// {{.Struct.Name}}StateMachine is a FSM that can handle transitions of a lot of objects. eventHandler and transitions are configured before use them.
+	{{.Struct.Name}}StateMachine struct {
+		transitions []{{.Struct.Name}}Transition
+		actionHandler {{.Struct.Name}}HandleAction
+		persister {{.Struct.Name}}PersistState
+	}
 )
 
-// {{.Struct.Name}}StateMachine is a FSM that can handle transitions of a lot of objects. eventHandler and transitions are configured before use them.
-type {{.Struct.Name}}StateMachine struct {
-	transitions []{{.Struct.Name}}Transition
-	actionHandler {{.Struct.Name}}HandleAction
-	persister {{.Struct.Name}}PersistState
-}
+var (
+	Err{{.Struct.Name}}FsmAction = errors.New("{{.Struct.Name}}StateMachine action error")
+	Err{{.Struct.Name}}FsmBeforeAction = errors.New("{{.Struct.Name}}StateMachine before action error")
+)
+
 type Option func(*{{.Struct.Name}}StateMachine)
 
 func WithActionHandler(h {{.Struct.Name}}HandleAction) Option {
@@ -75,7 +76,7 @@ func (m *{{.Struct.Name}}StateMachine) ChangeState(event string, obj *{{.Struct.
 	if len(trans.BeforeActions) > 0 && m.actionHandler != nil {
 		for _, action := range trans.BeforeActions {
 			if err := m.actionHandler(action, trans.From, trans.To, obj); err != nil {
-				return fmt.Errorf("action [%s] return error: %w", action, err)
+				return fmt.Errorf("%w. action [%s] return error: %s", Err{{.Struct.Name}}FsmBeforeAction, action, err)
 			}
 		}
 	}
@@ -92,7 +93,7 @@ func (m *{{.Struct.Name}}StateMachine) ChangeState(event string, obj *{{.Struct.
 		var errs error
 		for _, action := range trans.Actions {
 			if err := m.actionHandler(action, trans.From, trans.To, obj); err != nil {
-				errs = multierror.Append(errs, fmt.Errorf("action [%s] return error: %w", action, err))
+				errs = multierror.Append(errs, fmt.Errorf("%w. action [%s] return error: %s", Err{{.Struct.Name}}FsmAction, action, err))
 			}
 		}
 

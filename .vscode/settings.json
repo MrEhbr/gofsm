@@ -5,6 +5,7 @@
     "-count=1"
   ],
   "conventionalCommits.scopes": [
-    "transitions"
+    "transitions",
+    "actions"
   ],
 }

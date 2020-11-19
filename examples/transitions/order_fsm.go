@@ -1,36 +1,41 @@
 package transitions
 
-// DO NOT EDIT!
-// This code is generated with http://github.com/MrEhbr/gofsm tool
-
 import (
+	"errors"
 	"fmt"
 
 	"github.com/hashicorp/go-multierror"
 )
 
-// OrderTransition is a state transition and all data are literal values that simplifies FSM usage and make it generic.
-type OrderTransition struct {
-	Event         string
-	From          StateType
-	To            StateType
-	BeforeActions []string
-	Actions       []string
-}
+// DO NOT EDIT!
+// This code is generated with http://github.com/MrEhbr/gofsm tool
 
 type (
+	// OrderTransition is a state transition and all data are literal values that simplifies FSM usage and make it generic.
+	OrderTransition struct {
+		Event         string
+		From          StateType
+		To            StateType
+		BeforeActions []string
+		Actions       []string
+	}
 	// OrderHandle handles transitions action
 	OrderHandleAction func(action string, fromState, toState StateType, obj *Order) error
 	// Save state to external storage
 	OrderPersistState func(obj *Order, state StateType) error
+	// OrderStateMachine is a FSM that can handle transitions of a lot of objects. eventHandler and transitions are configured before use them.
+	OrderStateMachine struct {
+		transitions   []OrderTransition
+		actionHandler OrderHandleAction
+		persister     OrderPersistState
+	}
 )
 
-// OrderStateMachine is a FSM that can handle transitions of a lot of objects. eventHandler and transitions are configured before use them.
-type OrderStateMachine struct {
-	transitions   []OrderTransition
-	actionHandler OrderHandleAction
-	persister     OrderPersistState
-}
+var (
+	ErrOrderFsmAction       = errors.New("OrderStateMachine action error")
+	ErrOrderFsmBeforeAction = errors.New("OrderStateMachine before action error")
+)
+
 type Option func(*OrderStateMachine)
 
 func WithActionHandler(h OrderHandleAction) Option {
@@ -71,7 +76,7 @@ func (m *OrderStateMachine) ChangeState(event string, obj *Order) error {
 	if len(trans.BeforeActions) > 0 && m.actionHandler != nil {
 		for _, action := range trans.BeforeActions {
 			if err := m.actionHandler(action, trans.From, trans.To, obj); err != nil {
-				return fmt.Errorf("action [%s] return error: %w", action, err)
+				return fmt.Errorf("%w. action [%s] return error: %s", ErrOrderFsmBeforeAction, action, err)
 			}
 		}
 	}
@@ -88,7 +93,7 @@ func (m *OrderStateMachine) ChangeState(event string, obj *Order) error {
 		var errs error
 		for _, action := range trans.Actions {
 			if err := m.actionHandler(action, trans.From, trans.To, obj); err != nil {
-				errs = multierror.Append(errs, fmt.Errorf("action [%s] return error: %w", action, err))
+				errs = multierror.Append(errs, fmt.Errorf("%w. action [%s] return error: %s", ErrOrderFsmAction, action, err))
 			}
 		}
 
