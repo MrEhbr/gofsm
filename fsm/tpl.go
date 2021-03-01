@@ -20,7 +20,7 @@ type (
 		Actions []string
 	}
 	// {{.Struct.Name}}Handle handles transitions action
-	{{.Struct.Name}}HandleAction func(action string, fromState, toState {{.Struct.StateType}}, obj *{{.Struct.Name}}) error
+	{{.Struct.Name}}HandleAction func(action string, transition {{.Struct.Name}}Transition, obj *{{.Struct.Name}}) error
 	// Save state to external storage
 	{{.Struct.Name}}PersistState func(obj *{{.Struct.Name}}, state {{.Struct.StateType}}) error
 	// {{.Struct.Name}}StateMachine is a FSM that can handle transitions of a lot of objects. eventHandler and transitions are configured before use them.
@@ -78,7 +78,7 @@ func (m *{{.Struct.Name}}StateMachine) ChangeState(event string, obj *{{.Struct.
 
 	if len(trans.BeforeActions) > 0 && m.actionHandler != nil {
 		for _, action := range trans.BeforeActions {
-			if err := m.actionHandler(action, trans.From, trans.To, obj); err != nil {
+			if err := m.actionHandler(action, trans, obj); err != nil {
 				if errors.Is(err, Err{{.Struct.Name}}FsmSkip) {
 					return nil
 				}
@@ -99,7 +99,7 @@ func (m *{{.Struct.Name}}StateMachine) ChangeState(event string, obj *{{.Struct.
 	if len(trans.Actions) > 0 && m.actionHandler  != nil {
 		var errs error
 		for _, action := range trans.Actions {
-			if err := m.actionHandler(action, trans.From, trans.To, obj); err != nil {
+			if err := m.actionHandler(action, trans, obj); err != nil {
 				errs = multierror.Append(errs, fmt.Errorf("%w. action [%s] return error: %s", Err{{.Struct.Name}}FsmAction, action, err))
 			}
 		}

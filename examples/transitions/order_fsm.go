@@ -10,6 +10,8 @@ import (
 // DO NOT EDIT!
 // This code is generated with http://github.com/MrEhbr/gofsm tool
 
+//go:generate gofsm gen -s Order -f State -o order_fsm.go -t transitions.json
+
 type (
 	// OrderTransition is a state transition and all data are literal values that simplifies FSM usage and make it generic.
 	OrderTransition struct {
@@ -20,7 +22,7 @@ type (
 		Actions       []string
 	}
 	// OrderHandle handles transitions action
-	OrderHandleAction func(action string, fromState, toState StateType, obj *Order) error
+	OrderHandleAction func(action string, transition OrderTransition, obj *Order) error
 	// Save state to external storage
 	OrderPersistState func(obj *Order, state StateType) error
 	// OrderStateMachine is a FSM that can handle transitions of a lot of objects. eventHandler and transitions are configured before use them.
@@ -78,7 +80,7 @@ func (m *OrderStateMachine) ChangeState(event string, obj *Order) error {
 
 	if len(trans.BeforeActions) > 0 && m.actionHandler != nil {
 		for _, action := range trans.BeforeActions {
-			if err := m.actionHandler(action, trans.From, trans.To, obj); err != nil {
+			if err := m.actionHandler(action, trans, obj); err != nil {
 				if errors.Is(err, ErrOrderFsmSkip) {
 					return nil
 				}
@@ -99,7 +101,7 @@ func (m *OrderStateMachine) ChangeState(event string, obj *Order) error {
 	if len(trans.Actions) > 0 && m.actionHandler != nil {
 		var errs error
 		for _, action := range trans.Actions {
-			if err := m.actionHandler(action, trans.From, trans.To, obj); err != nil {
+			if err := m.actionHandler(action, trans, obj); err != nil {
 				errs = multierror.Append(errs, fmt.Errorf("%w. action [%s] return error: %s", ErrOrderFsmAction, action, err))
 			}
 		}
