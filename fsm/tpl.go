@@ -47,7 +47,7 @@ func WithActionHandler(h {{.Struct.Name}}HandleAction) Option {
 	}
 }
 
-func WithPersiter(p {{.Struct.Name}}PersistState) Option {
+func WithPersister(p {{.Struct.Name}}PersistState) Option {
 	return func(fsm *{{.Struct.Name}}StateMachine) {
 		fsm.persister = p
 	}
